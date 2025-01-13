@@ -8,8 +8,8 @@ arrow_pos dw 0d                             ;arrow pos
 arrow_status db 0d                          ;0 = arrow ready to go else not 
 arrow_limit dw  22d     ;150d
 
-loon_pos dw 3860d       ;3990d
-loon_status db 0d
+mutant_pos dw 3860d       ;3990d
+mutant_status db 0d
          
                                             ;direction of pl
                                             ;up=8, down=2
@@ -86,7 +86,7 @@ main_loop:                                 ;logic update and display
         jge game_over
         
         mov dx,arrow_pos                   ;check collisions
-        cmp dx, loon_pos
+        cmp dx, mutant_pos
         je hit
         
         cmp direction,8d                   ;player pos updates
@@ -98,9 +98,9 @@ main_loop:                                 ;logic update and display
         cmp arrow_pos, dx
         jge hide_arrow
         
-        cmp loon_pos, 0d                   ;check miss loon
-        jle miss_loon
-        jne render_loon 
+        cmp mutant_pos, 0d                 ;check miss mutant
+        jle miss_mutant
+        jne render_mutant 
     
         hit:                               ;sound if hit ( nu merge mereu da nu ma prind de ce )
             mov ah,2
@@ -119,20 +119,20 @@ main_loop:                                 ;logic update and display
             mov dl, 0dh
             int 21h    
             
-            jmp fire_loon                  ;new loon pops up
+            jmp fire_mutant                ;new mutant pops up
     
-        render_loon:                       ;draw loon
-            mov cl, ' '                    ;hide old loon
+        render_mutant:                     ;draw mutant
+            mov cl, ' '                    ;hide old mutant
             mov ch, 1111b
         
-            mov bx,loon_pos 
+            mov bx,mutant_pos 
             mov es:[bx], cx
                 
-            sub loon_pos,160d              ;draw in new position
+            sub mutant_pos,160d            ;draw in new position
             mov cl, 15d
             mov ch, 1101b
         
-            mov bx,loon_pos 
+            mov bx,mutant_pos 
             mov es:[bx], cx
             
             cmp arrow_status,1d            ;check arrow for rendering
@@ -162,8 +162,7 @@ main_loop:                                 ;logic update and display
             mov bx,player_pos 
             mov es:[bx], cx
             
-             
-                       
+
     cmp exit,0
     je main_loop                          ;end main loop
     jmp exit_game
@@ -251,7 +250,7 @@ fire_arrow:                               ;set arrow postion in player position
     mov arrow_status, 1d                  ;set arrow status.It prevents multiple 
     jmp inside_loop                       ;shooting 
 
-miss_loon:
+miss_mutant:
     add miss,1                            ;update score
 
     lea bx,state_buf                      ;display score
@@ -263,12 +262,12 @@ miss_loon:
     mov ah,2
     mov dl, 0dh
     int 21h
-jmp fire_loon
+jmp fire_mutant
     
-fire_loon:                                ;fire new balloon
-    mov loon_status, 1d
-    mov loon_pos, 3860d     ;3990d
-    jmp render_loon
+fire_mutant:                              ;fire new mutant
+    mov mutant_status, 1d
+    mov mutant_pos, 3860d     ;3990d
+    jmp render_mutant
     
 hide_arrow:
     mov arrow_status, 0                   ;hide arrow
@@ -279,9 +278,9 @@ hide_arrow:
     mov bx,arrow_pos 
     mov es:[bx], cx
     
-    cmp loon_pos, 0d 
-    jle miss_loon
-    jne render_loon 
+    cmp mutant_pos, 0d 
+    jle miss_mutant
+    jne render_mutant 
     
     jmp inside_loop2
                                           ;print game over screen
@@ -293,7 +292,7 @@ game_over:
     
     
     
-    mov cl, ' '                           ;hide last of screen balloon
+    mov cl, ' '                           ;hide last of screen mutant
     mov ch, 1111b 
     mov bx,arrow_pos                      
     
@@ -312,8 +311,8 @@ game_over:
     mov arrow_status, 0d 
     mov arrow_limit, 22d      ;150d
 
-    mov loon_pos, 3860d       ;3990d
-    mov loon_status, 0d
+    mov mutant_pos, 3860d       ;3990d
+    mov mutant_status, 0d
          
     mov direction, 0d
                                            ;wait for input
